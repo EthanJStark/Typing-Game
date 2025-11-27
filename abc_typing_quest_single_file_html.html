@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ABC Typing Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  /* High‑contrast, teen-friendly neon look */
+  :root{
+    --bg:#0b0f1a;          /* deep navy */
+    --panel:#0f1629;
+    --accent:#00e5ff;      /* neon cyan */
+    --accent2:#ff3af2;     /* neon magenta */
+    --accent3:#7b2dff;     /* electric purple */
+    --ok:#44ff88;          /* lime */
+    --warn:#ff5757;        /* coral red */
+    --muted:#8aa0c6;
+  }
+  html,body{height:100%; overflow:hidden;}
+  body{
+    margin:0; 
+    background: var(--bg);
+    color:white; font-family: 'Orbitron', ui-rounded, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    display:grid; place-items:center;
+    position: relative;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     AURORA BOREALIS BACKGROUND
+     ═══════════════════════════════════════════════════════════ */
+  .aurora-container {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .aurora {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background: 
+      radial-gradient(ellipse 80% 50% at 20% 40%, rgba(0, 229, 255, 0.25) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 70% 20%, rgba(123, 45, 255, 0.22) 0%, transparent 50%),
+      radial-gradient(ellipse 70% 60% at 40% 80%, rgba(255, 58, 242, 0.18) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 30% at 80% 60%, rgba(0, 229, 255, 0.15) 0%, transparent 50%);
+    animation: auroraShift 12s ease-in-out infinite alternate;
+    filter: blur(50px);
+  }
+  .aurora-2 {
+    position: absolute;
+    width: 180%;
+    height: 180%;
+    top: -40%;
+    left: -40%;
+    background: 
+      radial-gradient(ellipse 50% 80% at 60% 30%, rgba(0, 229, 255, 0.2) 0%, transparent 50%),
+      radial-gradient(ellipse 40% 50% at 30% 70%, rgba(255, 58, 242, 0.25) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 80% 50%, rgba(123, 45, 255, 0.18) 0%, transparent 50%);
+    animation: auroraShift2 15s ease-in-out infinite alternate-reverse;
+    filter: blur(70px);
+  }
+  .aurora-3 {
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    top: -25%;
+    left: -25%;
+    background: 
+      radial-gradient(ellipse 100% 60% at 50% 0%, rgba(0, 229, 255, 0.3) 0%, transparent 40%),
+      radial-gradient(ellipse 80% 40% at 20% 90%, rgba(123, 45, 255, 0.25) 0%, transparent 40%);
+    animation: auroraShift3 18s ease-in-out infinite alternate;
+    filter: blur(80px);
+  }
+  @keyframes auroraShift {
+    0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+    33% { transform: translate(5%, -3%) rotate(2deg) scale(1.05); }
+    66% { transform: translate(-3%, 5%) rotate(-1deg) scale(0.98); }
+    100% { transform: translate(2%, 2%) rotate(1deg) scale(1.02); }
+  }
+  @keyframes auroraShift2 {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 0.8; }
+    50% { transform: translate(-4%, 3%) rotate(-2deg); opacity: 1; }
+    100% { transform: translate(3%, -2%) rotate(1deg); opacity: 0.9; }
+  }
+  @keyframes auroraShift3 {
+    0% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+    50% { transform: translate(2%, -4%) scale(1.1); opacity: 0.8; }
+    100% { transform: translate(-2%, 2%) scale(0.95); opacity: 0.7; }
+  }
+  /* Subtle star twinkle overlay */
+  .stars {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.8), transparent),
+      radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1.5px 1.5px at 60% 20%, rgba(255,255,255,0.9), transparent),
+      radial-gradient(1px 1px at 80% 50%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1.5px 1.5px at 90% 10%, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1px 1px at 50% 90%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 30% 50%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 70% 85%, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1.5px 1.5px at 15% 15%, rgba(255,255,255,0.8), transparent);
+    animation: twinkle 4s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle {
+    0% { opacity: 0.4; }
+    100% { opacity: 0.8; }
+  }
+  .wrap{ width:min(1100px, 96vw); padding:24px; position: relative; z-index: 1; }
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border:1.5px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 0 80px rgba(0,229,255,0.06);
+    border-radius:20px; padding:24px; position:relative; overflow:hidden;
+  }
+  .title{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .logo{ width:34px; height:34px; border-radius:8px; background: conic-gradient(from 210deg, var(--accent), var(--accent2));
+         filter: drop-shadow(0 0 10px rgba(0,229,255,0.5)); }
+  h1{ font-size: clamp(24px, 4.2vw, 40px); margin:0; letter-spacing:0.02em; }
+
+  .hud{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; color:var(--muted); }
+  .btn{ border:none; padding:10px 14px; border-radius:14px; font-weight:700; letter-spacing:0.4px;
+        background: linear-gradient(90deg, rgba(0,229,255,0.15), rgba(255,58,242,0.15));
+        color:white; cursor:pointer; outline:2px solid rgba(255,255,255,0.08);
+        transition: transform .08s ease, outline-color .2s ease, background .2s ease;
+  }
+  .btn:hover{ transform: translateY(-1px); outline-color: rgba(255,255,255,0.18); }
+  .btn:active{ transform: translateY(1px) scale(0.99); }
+
+  .stage{ display:grid; grid-template-columns: 1fr 320px; gap:18px; align-items:stretch; }
+  @media (max-width: 860px){ .stage{ grid-template-columns: 1fr; } }
+
+  .target{
+    display:grid; place-items:center; min-height:280px; border-radius:18px;
+    background: radial-gradient(600px 200px at 50% 0%, rgba(0,229,255,0.08), transparent 40%), var(--panel);
+    outline:1px solid rgba(255,255,255,0.09); position:relative; overflow:hidden;
+  }
+  .target .big{ font-size: clamp(72px, 20vw, 200px); font-weight:900; line-height:0.9;
+    text-shadow: 0 0 0.6em rgba(0,229,255,0.55), 0 0 0.15em rgba(255,58,242,0.45);
+    color:white; letter-spacing:0.02em; user-select:none; 
+    font-family: ui-rounded, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+  .target .hint{ position:absolute; bottom:14px; left:16px; color:var(--muted); font-size:14px; }
+
+  .side{
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+    border-radius:18px; outline:1px solid rgba(255,255,255,0.09); padding:16px 14px;
+  }
+  .progress{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
+  .tile{
+    width:34px; height:40px; border-radius:10px; display:grid; place-items:center; font-weight:800;
+    background: rgba(255,255,255,0.06); outline:1px solid rgba(255,255,255,0.12);
+    text-transform:uppercase; letter-spacing:0.5px; color:#e6f9ff; position:relative;
+  }
+  .tile.done{ background: linear-gradient(180deg, rgba(68,255,136,0.22), rgba(68,255,136,0.12));
+              outline-color: rgba(68,255,136,0.5); box-shadow: inset 0 0 18px rgba(68,255,136,0.3); }
+  .tile.next{ animation: pulse 1200ms infinite ease-in-out; color:white; }
+  @keyframes pulse{ 0%{ box-shadow:0 0 0 rgba(0,229,255,0.0);} 50%{ box-shadow:0 0 20px rgba(0,229,255,0.55);} 100%{ box-shadow:0 0 0 rgba(0,229,255,0.0);} }
+
+  .message{ margin-top:12px; text-align:center; font-size:14px; color:var(--muted); min-height:20px; }
+
+  .footer{ margin-top:18px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+  .sr{ position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+
+  /* Fun effects */
+  .shake{ animation: shake .35s ease; }
+  @keyframes shake{ 0%{ transform:translateX(0);} 25%{transform:translateX(-10px);} 50%{transform:translateX(10px);} 75%{transform:translateX(-6px);} 100%{transform:translateX(0);} }
+
+  canvas#confetti{ position:absolute; inset:0; pointer-events:none; }
+
+  /* ═══════════════════════════════════════════════════════════
+     POP EFFECT - Satisfying burst on correct key
+     ═══════════════════════════════════════════════════════════ */
+  .big.pop {
+    animation: letterPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes letterPop {
+    0% { transform: scale(1); filter: brightness(1); }
+    30% { transform: scale(1.25); filter: brightness(1.5); }
+    50% { transform: scale(0.9); }
+    70% { transform: scale(1.08); }
+    100% { transform: scale(1); filter: brightness(1); }
+  }
+
+  /* Pop ring burst effect */
+  .pop-ring {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    border: 4px solid var(--accent);
+    box-shadow: 0 0 30px var(--accent), inset 0 0 20px var(--accent);
+    animation: popRingBurst 0.5s ease-out forwards;
+  }
+  .pop-ring.secondary {
+    border-color: var(--accent2);
+    box-shadow: 0 0 30px var(--accent2), inset 0 0 20px var(--accent2);
+    animation-delay: 0.08s;
+    animation-duration: 0.6s;
+  }
+  @keyframes popRingBurst {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(4); opacity: 0; }
+  }
+
+  /* Particle burst */
+  .pop-particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particleBurst 0.6s ease-out forwards;
+  }
+  @keyframes particleBurst {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* Glow flash on target area */
+  .target.flash {
+    animation: targetFlash 0.3s ease-out;
+  }
+  @keyframes targetFlash {
+    0% { box-shadow: inset 0 0 80px rgba(0,229,255,0.06); }
+    50% { box-shadow: inset 0 0 120px rgba(0,229,255,0.25), 0 0 60px rgba(0,229,255,0.3); }
+    100% { box-shadow: inset 0 0 80px rgba(0,229,255,0.06); }
+  }
+
+  /* Screen shake on correct hit */
+  .card.screen-pop {
+    animation: screenPop 0.25s ease-out;
+  }
+  @keyframes screenPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.008); }
+    100% { transform: scale(1); }
+  }
+
+  /* Focus input (for mobile soft keyboard) */
+  #hiddenInput{ position:absolute; opacity:0; pointer-events:none; height:0; }
+  /* On-screen QWERTY keyboard */
+  .keyboard{ margin-top:16px; user-select:none; }
+  .kb-row{ display:flex; justify-content:center; gap:10px; margin:8px 0; }
+  .key{ min-width:40px; height:48px; padding:0 10px; border-radius:12px; display:grid; place-items:center; font-weight:900; text-transform:uppercase;
+        background: rgba(255,255,255,0.06); outline:2px solid rgba(255,255,255,0.12); color:#e6f9ff; cursor:pointer;
+        box-shadow: inset 0 -3px 0 rgba(0,0,0,0.25); transition: transform .06s ease, outline-color .15s ease, background .15s ease; }
+  .key:hover{ outline-color: rgba(255,255,255,0.25); }
+  .key:active{ transform: translateY(1px) scale(0.98); }
+  .key.next{ background: linear-gradient(180deg, rgba(0,229,255,0.22), rgba(0,229,255,0.12));
+             outline-color: rgba(0,229,255,0.55); box-shadow: 0 0 18px rgba(0,229,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25); color:white; }
+  .key.hit{ animation: keyHit .28s ease; }
+  .key.wrong{ animation: keyWrong .28s ease; }
+  @keyframes keyHit{ 0%{ transform:scale(1);} 50%{ transform:scale(0.92);} 100%{ transform:scale(1);} }
+  @keyframes keyWrong{ 0%{ transform:translateY(0);} 30%{ transform:translateY(-3px);} 100%{ transform:translateY(0);} }
+</style>
+</head>
+<body>
+  <!-- Aurora Background -->
+  <div class="aurora-container" aria-hidden="true">
+    <div class="aurora"></div>
+    <div class="aurora-2"></div>
+    <div class="aurora-3"></div>
+    <div class="stars"></div>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="title">
+        <div class="logo" aria-hidden="true"></div>
+        <h1>ABC Typing Quest</h1>
+      </div>
+
+      <div class="hud">
+        <div>
+          <strong>Goal:</strong> Type the alphabet from <span style="color:var(--accent)">A</span> to <span style="color:var(--accent2)">Z</span> in order.
+        </div>
+        <div>
+          <button class="btn" id="speakBtn" title="Hear the target letter">🔊 Say it</button>
+          <button class="btn" id="restartBtn" title="Restart the game">↻ Restart</button>
+        </div>
+      </div>
+
+      <div class="stage">
+        <section class="target" id="target" aria-live="polite" aria-atomic="true">
+          <canvas id="confetti"></canvas>
+          <div class="big" id="big">A</div>
+          <div class="hint">Type this letter on your keyboard (or tap the screen first to focus).</div>
+        </section>
+
+        <aside class="side">
+          <div class="progress" id="progress" aria-label="Progress A to Z"></div>
+          <div class="message" id="message" aria-live="polite"></div>
+        </aside>
+      </div>
+
+      <!-- On-screen QWERTY keyboard -->
+      <section class="keyboard" id="keyboard" aria-label="On-screen keyboard">
+        <!-- Rows will be injected by JS -->
+      </section>
+
+      <div class="footer">
+        <button class="btn" id="toggleCaseBtn" title="Switch between lowercase and uppercase target">aA Case</button>
+        <button class="btn" id="toggleVoiceBtn" title="Toggle speech on/off">🔈 Speech: On</button>
+        <button class="btn" id="focusBtn" title="If your typing doesn’t work, click here">⌨️ Click to Type</button>
+      </div>
+
+      <input id="hiddenInput" autocomplete="off" />
+      <div class="sr" id="srStatus" aria-live="polite"></div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const alphabet = Array.from({length:26}, (_,i)=> String.fromCharCode(97+i)); // a..z
+  let index = 0;              // next target index
+  let useUpper = true;        // display case only
+  let speechOn = true;        // toggle speech
+
+  const els = {
+    big: document.getElementById('big'),
+    progress: document.getElementById('progress'),
+    message: document.getElementById('message'),
+    target: document.getElementById('target'),
+    speakBtn: document.getElementById('speakBtn'),
+    restartBtn: document.getElementById('restartBtn'),
+    toggleCaseBtn: document.getElementById('toggleCaseBtn'),
+    toggleVoiceBtn: document.getElementById('toggleVoiceBtn'),
+    focusBtn: document.getElementById('focusBtn'),
+    hiddenInput: document.getElementById('hiddenInput'),
+    srStatus: document.getElementById('srStatus'),
+    confetti: document.getElementById('confetti'),
+    keyboard: document.getElementById('keyboard'),
+  };
+
+  // Build progress tiles
+  function buildProgress(){
+    els.progress.innerHTML = '';
+    alphabet.forEach((ch,i)=>{
+      const div = document.createElement('div');
+      div.className = 'tile' + (i<index? ' done': i===index? ' next' : '');
+      div.textContent = (useUpper? ch.toUpperCase(): ch);
+      div.setAttribute('aria-label', `Letter ${ch}`);
+      els.progress.appendChild(div);
+    });
+  }
+
+  // Speak a short utterance (any typed letter, or prompts)
+  function speak(text){
+    if(!speechOn) return;
+    if(!('speechSynthesis' in window)) return; // unsupported
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.9; u.pitch = 1.05; u.volume = 1.0;
+    // Prefer a child‑friendly English voice if present
+    const voices = speechSynthesis.getVoices();
+    const pref = voices.find(v=> /en/i.test(v.lang) && /child|kids|female/i.test(v.name)) || voices.find(v=> /en/i.test(v.lang));
+    if(pref) u.voice = pref;
+    speechSynthesis.speak(u);
+  }
+  // Some browsers load voices async
+  if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged = ()=>{}; }
+
+  function targetLetter(){ return alphabet[index]; }
+
+  function setMessage(text, ok){
+    els.message.textContent = text || '';
+    els.message.style.color = ok? 'var(--ok)' : text? 'var(--warn)' : 'var(--muted)';
+    els.srStatus.textContent = text || '';
+  }
+
+  function updateUI(){
+    if(index >= alphabet.length){
+      els.big.textContent = '🎉';
+    } else {
+      const t = targetLetter();
+      els.big.textContent = useUpper ? t.toUpperCase() : t;
+    }
+    buildProgress();
+  }
+
+  function celebrate(){
+    confettiBurst();
+    setMessage('Great job! You typed A to Z! 🎉', true);
+    speak('Great job! You typed the whole alphabet!');
+  }
+
+  function restart(){ index = 0; updateUI(); setMessage('New round! Type the letter you see.'); }
+
+  // Unified input handler (physical keys & on-screen clicks)
+  function handleInput(letter){
+    if(!letter) return;
+    const lower = letter.toLowerCase();
+
+    // Speak any letter the user types (always)
+    speak((useUpper? lower.toUpperCase(): lower));
+
+    // Flash the pressed key on the on-screen keyboard
+    flashKey(lower, lower === targetLetter() ? 'hit' : 'wrong');
+
+    if(lower === targetLetter()){
+      index++;
+      ripple();
+      if(index >= alphabet.length){ index = alphabet.length; updateUI(); celebrate(); return; }
+      updateUI();
+      setMessage('Nice! Now type ' + (useUpper? alphabet[index].toUpperCase(): alphabet[index]) + '.');
+    } else {
+      // Wrong letter feedback
+      els.target.classList.remove('shake');
+      void els.target.offsetWidth; // restart animation
+      els.target.classList.add('shake');
+      setMessage('Almost! We need ' + (useUpper? targetLetter().toUpperCase(): targetLetter()) + ' next.');
+    }
+  }
+
+  // Physical keyboard -> unify
+  function onKey(e){
+    const key = e.key;
+    if(!/^[a-zA-Z]$/.test(key)) return; // ignore non‑letters
+    handleInput(key);
+  }
+  
+  // Visual ripple effect on correct key - ENHANCED with pop burst
+  function ripple(){
+    // Trigger letter pop animation
+    els.big.classList.remove('pop');
+    void els.big.offsetWidth;
+    els.big.classList.add('pop');
+    setTimeout(() => els.big.classList.remove('pop'), 400);
+
+    // Target flash
+    els.target.classList.remove('flash');
+    void els.target.offsetWidth;
+    els.target.classList.add('flash');
+    setTimeout(() => els.target.classList.remove('flash'), 300);
+
+    // Card subtle pop
+    const card = document.querySelector('.card');
+    card.classList.remove('screen-pop');
+    void card.offsetWidth;
+    card.classList.add('screen-pop');
+    setTimeout(() => card.classList.remove('screen-pop'), 250);
+
+    // Pop ring burst (primary)
+    const ring1 = document.createElement('div');
+    ring1.className = 'pop-ring';
+    els.target.appendChild(ring1);
+    setTimeout(() => ring1.remove(), 500);
+
+    // Pop ring burst (secondary, delayed)
+    const ring2 = document.createElement('div');
+    ring2.className = 'pop-ring secondary';
+    els.target.appendChild(ring2);
+    setTimeout(() => ring2.remove(), 680);
+
+    // Particle burst - spawn multiple particles flying outward
+    const colors = ['#00e5ff', '#ff3af2', '#7b2dff', '#44ff88', '#fff'];
+    const particleCount = 12;
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'pop-particle';
+      particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+      particle.style.left = '50%';
+      particle.style.top = '50%';
+      particle.style.boxShadow = `0 0 10px ${particle.style.background}`;
+      
+      // Calculate outward direction
+      const angle = (i / particleCount) * Math.PI * 2 + Math.random() * 0.3;
+      const distance = 80 + Math.random() * 60;
+      const x = Math.cos(angle) * distance;
+      const y = Math.sin(angle) * distance;
+      
+      particle.style.setProperty('--x', `${x}px`);
+      particle.style.setProperty('--y', `${y}px`);
+      particle.animate([
+        { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+        { transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(0.3)`, opacity: 0 }
+      ], {
+        duration: 500 + Math.random() * 200,
+        easing: 'cubic-bezier(0, 0.5, 0.5, 1)',
+        fill: 'forwards'
+      });
+      
+      els.target.appendChild(particle);
+      setTimeout(() => particle.remove(), 700);
+    }
+  }
+
+  // Simple confetti using canvas
+  function confettiBurst(){
+    const c = els.confetti; const ctx = c.getContext('2d');
+    const rect = els.target.getBoundingClientRect();
+    c.width = rect.width; c.height = rect.height;
+
+    const pieces = Array.from({length: 140}, ()=> ({
+      x: Math.random()*c.width,
+      y: -10 - Math.random()*c.height/2,
+      s: 4 + Math.random()*6,
+      v: 1 + Math.random()*3,
+      r: Math.random()*Math.PI,
+      w: (Math.random()<0.5? 'rgba(0,229,255,1)' : 'rgba(255,58,242,1)')
+    }));
+
+    let t=0, maxT=90; // ~1.5s
+    (function step(){
+      ctx.clearRect(0,0,c.width,c.height);
+      pieces.forEach(p=>{
+        p.y += p.v*2; p.x += Math.sin((t+p.y)*0.05)*1.6; p.r += 0.1;
+        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r);
+        ctx.fillStyle = p.w; ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s);
+        ctx.restore();
+      });
+      t++;
+      if(t<maxT) requestAnimationFrame(step); else ctx.clearRect(0,0,c.width,c.height);
+    })();
+  }
+
+  // Controls
+  els.speakBtn.addEventListener('click', ()=> speak(useUpper? targetLetter().toUpperCase(): targetLetter()));
+  els.restartBtn.addEventListener('click', ()=> restart());
+  els.toggleCaseBtn.addEventListener('click', ()=> { useUpper=!useUpper; updateUI(); });
+  els.toggleVoiceBtn.addEventListener('click', ()=> { speechOn=!speechOn; els.toggleVoiceBtn.textContent = (speechOn? '🔈 Speech: On' : '🔇 Speech: Off'); });
+  els.focusBtn.addEventListener('click', ()=> { els.hiddenInput.focus(); setMessage('Ready! Start typing…'); });
+
+  // Build on-screen keyboard
+  function buildKeyboard(){
+    const rows = ['qwertyuiop','asdfghjkl','zxcvbnm'];
+    els.keyboard.innerHTML = '';
+    rows.forEach((rowStr, ri)=>{
+      const row = document.createElement('div'); row.className='kb-row';
+      rowStr.split('').forEach(ch=>{
+        const k = document.createElement('button');
+        k.className = 'key'; k.type='button'; k.dataset.key = ch;
+        k.setAttribute('aria-label', `Key ${ch}`);
+        k.textContent = useUpper? ch.toUpperCase() : ch;
+        k.addEventListener('click', ()=> { els.hiddenInput.focus(); handleInput(ch); });
+        row.appendChild(k);
+      });
+      els.keyboard.appendChild(row);
+    });
+  }
+
+  function setNextKeyHighlight(){
+    const next = targetLetter();
+    els.keyboard.querySelectorAll('.key').forEach(k=>{
+      k.classList.toggle('next', k.dataset.key === next);
+      // keep label in sync with case toggle
+      const ch = k.dataset.key; k.textContent = useUpper? ch.toUpperCase() : ch;
+    });
+  }
+
+  function flashKey(letter, kind){
+    const btn = els.keyboard.querySelector(`.key[data-key="${letter}"]`);
+    if(!btn) return;
+    btn.classList.remove('hit','wrong');
+    void btn.offsetWidth;
+    btn.classList.add(kind);
+    setTimeout(()=> btn.classList.remove(kind), 220);
+  }
+
+  // Focus hidden input on first interaction for mobile
+  window.addEventListener('pointerdown', ()=> els.hiddenInput.focus(), {once:true});
+
+  // Global key listener
+  window.addEventListener('keydown', onKey);
+
+  // Init
+  buildKeyboard();
+  buildProgress();
+  setNextKeyHighlight();
+  setMessage('Type the glowing letter!');
+
+  // Keep keyboard highlight in sync when UI updates
+  const _updateUI = updateUI; // capture
+  updateUI = function(){ _updateUI(); setNextKeyHighlight(); };
+
+  // Also update keyboard labels when toggling case
+  els.toggleCaseBtn.addEventListener('click', setNextKeyHighlight);
+
+  // Restart should also refresh keyboard highlight
+  const _restart = restart; restart = function(){ _restart(); setNextKeyHighlight(); };
+
+  // Make the whole target area focus typing on click (mobile convenience)
+  els.target.addEventListener('click', ()=> els.hiddenInput.focus());
+
+  // Init end
+  buildProgress();
+  setNextKeyHighlight();
+  setMessage('Type the glowing letter!');
+})();
+</script>
+</body>
+</html>
