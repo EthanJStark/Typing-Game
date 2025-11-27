@@ -265,6 +265,282 @@
   .key.wrong{ animation: keyWrong .28s ease; }
   @keyframes keyHit{ 0%{ transform:scale(1);} 50%{ transform:scale(0.92);} 100%{ transform:scale(1);} }
   @keyframes keyWrong{ 0%{ transform:translateY(0);} 30%{ transform:translateY(-3px);} 100%{ transform:translateY(0);} }
+
+  /* ═══════════════════════════════════════════════════════════
+     RECORDS PANEL
+     ═══════════════════════════════════════════════════════════ */
+  .records-panel {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 340px;
+    max-height: 70vh;
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 0 80px rgba(0,229,255,0.06);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+  .records-panel.closed {
+    transform: translateY(-50%) translateX(120%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  @media (max-width: 1200px) {
+    .records-panel {
+      right: 10px;
+      width: 300px;
+    }
+  }
+  @media (max-width: 860px) {
+    .records-panel {
+      position: fixed;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      top: auto;
+      width: 100%;
+      max-height: 60vh;
+      transform: translateY(0);
+      border-radius: 20px 20px 0 0;
+    }
+    .records-panel.closed {
+      transform: translateY(100%);
+    }
+  }
+  .records-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: linear-gradient(180deg, rgba(0,229,255,0.08), transparent);
+  }
+  .records-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .records-header h2 .trophy { font-size: 22px; }
+  .records-close {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    display: grid;
+    place-items: center;
+    transition: background 0.2s ease;
+  }
+  .records-close:hover { background: rgba(255,255,255,0.18); }
+  
+  .records-controls {
+    display: flex;
+    gap: 8px;
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .view-toggle {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .view-toggle:hover { background: rgba(255,255,255,0.08); }
+  .view-toggle.active {
+    background: linear-gradient(90deg, rgba(0,229,255,0.2), rgba(255,58,242,0.2));
+    border-color: rgba(0,229,255,0.4);
+    color: white;
+  }
+  
+  .records-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+    min-height: 200px;
+  }
+  .records-list::-webkit-scrollbar { width: 6px; }
+  .records-list::-webkit-scrollbar-track { background: transparent; }
+  .records-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+  
+  .record-row {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 12px;
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.2s ease;
+  }
+  .record-row:hover { background: rgba(255,255,255,0.03); }
+  .record-row .rank {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .record-row .rank .medal { font-size: 20px; }
+  .record-row .details { display: flex; flex-direction: column; gap: 4px; }
+  .record-row .time-row { display: flex; align-items: baseline; gap: 10px; }
+  .record-row .time {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--accent);
+    text-shadow: 0 0 10px rgba(0,229,255,0.4);
+  }
+  .record-row .lpm {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent2);
+  }
+  .record-row .date {
+    font-size: 12px;
+    color: var(--muted);
+    opacity: 0.8;
+  }
+  
+  /* Medal colors for top 3 */
+  .record-row.gold .rank { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+  .record-row.silver .rank { color: #e8e8e8; text-shadow: 0 0 10px rgba(192,192,192,0.5); }
+  .record-row.bronze .rank { color: #cd7f32; text-shadow: 0 0 10px rgba(205,127,50,0.5); }
+  
+  /* Current run highlight */
+  .record-row.current {
+    background: linear-gradient(90deg, rgba(0,229,255,0.1), rgba(255,58,242,0.08));
+    border-left: 3px solid var(--accent);
+  }
+  
+  /* New record pulse */
+  .record-row.new-record {
+    animation: newRecordPulse 1.5s ease-in-out infinite;
+    background: linear-gradient(90deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05));
+    border-left: 3px solid #ffd700;
+  }
+  @keyframes newRecordPulse {
+    0%, 100% { box-shadow: inset 0 0 20px rgba(255,215,0,0.1); }
+    50% { box-shadow: inset 0 0 40px rgba(255,215,0,0.25); }
+  }
+  
+  .records-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .records-empty .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+  .records-empty p { margin: 0; font-size: 14px; }
+  
+  .records-footer {
+    display: flex;
+    gap: 8px;
+    padding: 14px 18px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    background: linear-gradient(0deg, rgba(0,0,0,0.2), transparent);
+  }
+  .records-footer .btn {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .records-footer .btn.danger {
+    background: linear-gradient(90deg, rgba(255,87,87,0.2), rgba(255,87,87,0.1));
+    outline-color: rgba(255,87,87,0.3);
+  }
+  .records-footer .btn.danger:hover { outline-color: rgba(255,87,87,0.5); }
+  
+  /* Hidden file input for import */
+  #importInput { display: none; }
+  
+  /* ═══════════════════════════════════════════════════════════
+     NEW RECORD CELEBRATION
+     ═══════════════════════════════════════════════════════════ */
+  .new-record-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, rgba(255,215,0,0.15) 0%, transparent 70%);
+    animation: overlayFadeIn 0.3s ease-out;
+    pointer-events: none;
+  }
+  @keyframes overlayFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .new-record-overlay .content {
+    text-align: center;
+    animation: newRecordBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes newRecordBounce {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .new-record-overlay .trophy-big {
+    font-size: 80px;
+    animation: trophyBounce 0.8s ease-out;
+    filter: drop-shadow(0 0 30px rgba(255,215,0,0.6));
+  }
+  @keyframes trophyBounce {
+    0%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-20px); }
+    50% { transform: translateY(-10px); }
+    70% { transform: translateY(-15px); }
+  }
+  .new-record-overlay .text {
+    font-size: 36px;
+    font-weight: 900;
+    color: #ffd700;
+    text-shadow: 0 0 30px rgba(255,215,0,0.5), 0 0 60px rgba(255,215,0,0.3);
+    margin-top: 10px;
+    letter-spacing: 2px;
+  }
+  .new-record-overlay .time-display {
+    font-size: 24px;
+    color: white;
+    margin-top: 10px;
+    font-weight: 700;
+  }
+  
+  /* Golden screen flash */
+  .golden-flash {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(255,215,0,0.4) 0%, transparent 70%);
+    z-index: 199;
+    animation: goldenFlash 0.5s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes goldenFlash {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
 </style>
 </head>
 <body>
@@ -314,13 +590,35 @@
       <div class="footer">
         <button class="btn" id="toggleCaseBtn" title="Switch between lowercase and uppercase target">aA Case</button>
         <button class="btn" id="toggleVoiceBtn" title="Toggle speech on/off">🔈 Speech: On</button>
-        <button class="btn" id="focusBtn" title="If your typing doesn’t work, click here">⌨️ Click to Type</button>
+        <button class="btn" id="focusBtn" title="If your typing doesn't work, click here">⌨️ Click to Type</button>
+        <button class="btn" id="recordsBtn" title="View your records">🏆 Records</button>
       </div>
 
       <input id="hiddenInput" autocomplete="off" />
+      <input type="file" id="importInput" accept=".json" />
       <div class="sr" id="srStatus" aria-live="polite"></div>
     </div>
   </div>
+
+  <!-- Records Panel -->
+  <aside class="records-panel closed" id="recordsPanel">
+    <div class="records-header">
+      <h2><span class="trophy">🏆</span> Records</h2>
+      <button class="records-close" id="recordsClose" title="Close panel">×</button>
+    </div>
+    <div class="records-controls">
+      <button class="view-toggle active" id="viewLeaderboard">Leaderboard</button>
+      <button class="view-toggle" id="viewRecent">Recent Runs</button>
+    </div>
+    <div class="records-list" id="recordsList">
+      <!-- Records will be rendered here -->
+    </div>
+    <div class="records-footer">
+      <button class="btn" id="exportBtn" title="Download records as JSON">📥 Export</button>
+      <button class="btn" id="importBtn" title="Import records from JSON">📤 Import</button>
+      <button class="btn danger" id="clearBtn" title="Clear all records">🗑️ Clear</button>
+    </div>
+  </aside>
 
 <script>
 (function(){
@@ -328,6 +626,19 @@
   let index = 0;              // next target index
   let useUpper = true;        // display case only
   let speechOn = true;        // toggle speech
+
+  // Timer tracking
+  let startTime = null;       // Set when user types first correct letter (A)
+  let endTime = null;         // Set when user completes Z
+  let currentRunId = null;    // ID of the just-completed run for highlighting
+
+  // Records panel state
+  let recordsPanelOpen = false;
+  let currentView = 'leaderboard'; // 'leaderboard' or 'recent'
+
+  const STORAGE_KEY = 'abc_typing_quest_records';
+  const STORAGE_VERSION = 1;
+  const MAX_RECORDS = 100;
 
   const els = {
     big: document.getElementById('big'),
@@ -343,7 +654,283 @@
     srStatus: document.getElementById('srStatus'),
     confetti: document.getElementById('confetti'),
     keyboard: document.getElementById('keyboard'),
+    recordsBtn: document.getElementById('recordsBtn'),
+    recordsPanel: document.getElementById('recordsPanel'),
+    recordsClose: document.getElementById('recordsClose'),
+    recordsList: document.getElementById('recordsList'),
+    viewLeaderboard: document.getElementById('viewLeaderboard'),
+    viewRecent: document.getElementById('viewRecent'),
+    exportBtn: document.getElementById('exportBtn'),
+    importBtn: document.getElementById('importBtn'),
+    importInput: document.getElementById('importInput'),
+    clearBtn: document.getElementById('clearBtn'),
   };
+
+  // ═══════════════════════════════════════════════════════════
+  // STORAGE FUNCTIONS
+  // ═══════════════════════════════════════════════════════════
+  function loadRecords() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (!data) return [];
+      const parsed = JSON.parse(data);
+      if (parsed.version !== STORAGE_VERSION) return []; // Handle version mismatch
+      return parsed.records || [];
+    } catch (e) {
+      console.warn('Failed to load records:', e);
+      return [];
+    }
+  }
+
+  function saveRecords(records) {
+    try {
+      const data = { version: STORAGE_VERSION, records };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      console.warn('Failed to save records:', e);
+    }
+  }
+
+  function addRecord(record) {
+    const records = loadRecords();
+    records.push(record);
+    // Trim to max records (keep most recent)
+    if (records.length > MAX_RECORDS) {
+      records.sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+      records.length = MAX_RECORDS;
+    }
+    saveRecords(records);
+    return records;
+  }
+
+  function clearRecords() {
+    localStorage.removeItem(STORAGE_KEY);
+    renderRecordsList();
+  }
+
+  function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // RECORDS PANEL UI
+  // ═══════════════════════════════════════════════════════════
+  function toggleRecordsPanel(forceState) {
+    recordsPanelOpen = forceState !== undefined ? forceState : !recordsPanelOpen;
+    els.recordsPanel.classList.toggle('closed', !recordsPanelOpen);
+    if (recordsPanelOpen) renderRecordsList();
+  }
+
+  function setRecordsView(view) {
+    currentView = view;
+    els.viewLeaderboard.classList.toggle('active', view === 'leaderboard');
+    els.viewRecent.classList.toggle('active', view === 'recent');
+    renderRecordsList();
+  }
+
+  function formatTime(ms) {
+    const sec = ms / 1000;
+    return sec.toFixed(1) + 's';
+  }
+
+  function formatLpm(lpm) {
+    return lpm.toFixed(1) + ' LPM';
+  }
+
+  function formatDate(isoString) {
+    const date = new Date(isoString);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const isYesterday = date.toDateString() === yesterday.toDateString();
+
+    const timeStr = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    
+    if (isToday) return 'Today, ' + timeStr;
+    if (isYesterday) return 'Yesterday, ' + timeStr;
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ', ' + timeStr;
+  }
+
+  function getMedalForRank(rank) {
+    if (rank === 1) return '🥇';
+    if (rank === 2) return '🥈';
+    if (rank === 3) return '🥉';
+    return '#' + rank;
+  }
+
+  function getRankClass(rank) {
+    if (rank === 1) return 'gold';
+    if (rank === 2) return 'silver';
+    if (rank === 3) return 'bronze';
+    return '';
+  }
+
+  function renderRecordsList() {
+    const records = loadRecords();
+    
+    if (records.length === 0) {
+      els.recordsList.innerHTML = `
+        <div class="records-empty">
+          <div class="icon">🏆</div>
+          <p>No records yet!<br>Complete A to Z to set your first record.</p>
+        </div>
+      `;
+      return;
+    }
+
+    let sortedRecords;
+    if (currentView === 'leaderboard') {
+      // Sort by fastest time
+      sortedRecords = [...records].sort((a, b) => a.totalTimeMs - b.totalTimeMs).slice(0, 10);
+    } else {
+      // Sort by most recent
+      sortedRecords = [...records].sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt)).slice(0, 10);
+    }
+
+    // Get the best time for new record detection
+    const bestTime = Math.min(...records.map(r => r.totalTimeMs));
+
+    els.recordsList.innerHTML = sortedRecords.map((record, idx) => {
+      const rank = currentView === 'leaderboard' ? idx + 1 : null;
+      const isCurrent = record.id === currentRunId;
+      const isNewRecord = isCurrent && record.totalTimeMs === bestTime && records.filter(r => r.totalTimeMs === bestTime).length === 1;
+      
+      let rowClasses = 'record-row';
+      if (rank) rowClasses += ' ' + getRankClass(rank);
+      if (isCurrent) rowClasses += ' current';
+      if (isNewRecord) rowClasses += ' new-record';
+
+      return `
+        <div class="${rowClasses}">
+          <div class="rank">
+            ${rank ? `<span class="medal">${getMedalForRank(rank)}</span>` : ''}
+          </div>
+          <div class="details">
+            <div class="time-row">
+              <span class="time">${formatTime(record.totalTimeMs)}</span>
+              <span class="lpm">${formatLpm(record.lpm)}</span>
+            </div>
+            <div class="date">${formatDate(record.completedAt)}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // EXPORT / IMPORT
+  // ═══════════════════════════════════════════════════════════
+  function exportRecords() {
+    const records = loadRecords();
+    const data = { version: STORAGE_VERSION, records, exportedAt: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'abc_typing_quest_records.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function importRecords(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!data.records || !Array.isArray(data.records)) {
+          alert('Invalid records file format.');
+          return;
+        }
+        // Merge with existing records (avoid duplicates by ID)
+        const existing = loadRecords();
+        const existingIds = new Set(existing.map(r => r.id));
+        const newRecords = data.records.filter(r => !existingIds.has(r.id));
+        const merged = [...existing, ...newRecords];
+        // Trim to max
+        merged.sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+        if (merged.length > MAX_RECORDS) merged.length = MAX_RECORDS;
+        saveRecords(merged);
+        renderRecordsList();
+        alert(`Imported ${newRecords.length} new records!`);
+      } catch (err) {
+        alert('Failed to import records: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // NEW RECORD CELEBRATION
+  // ═══════════════════════════════════════════════════════════
+  function isNewBestTime(newTimeMs, records) {
+    if (records.length <= 1) return records.length === 1; // First record is always a "best"
+    const previousBest = Math.min(...records.slice(0, -1).map(r => r.totalTimeMs));
+    return newTimeMs < previousBest;
+  }
+
+  function celebrateNewRecord(timeMs) {
+    // Golden flash
+    const flash = document.createElement('div');
+    flash.className = 'golden-flash';
+    document.body.appendChild(flash);
+    setTimeout(() => flash.remove(), 500);
+
+    // New record overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'new-record-overlay';
+    overlay.innerHTML = `
+      <div class="content">
+        <div class="trophy-big">🏆</div>
+        <div class="text">NEW RECORD!</div>
+        <div class="time-display">${formatTime(timeMs)}</div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    // Speak new record
+    speak('New record!');
+
+    // Golden confetti
+    goldenConfettiBurst();
+
+    // Remove overlay after animation
+    setTimeout(() => overlay.remove(), 3000);
+  }
+
+  function goldenConfettiBurst() {
+    const c = els.confetti; const ctx = c.getContext('2d');
+    const rect = els.target.getBoundingClientRect();
+    c.width = rect.width; c.height = rect.height;
+
+    const goldColors = ['#ffd700', '#ffec8b', '#ffc125', '#fff8dc', '#ff8c00'];
+    const pieces = Array.from({length: 180}, ()=> ({
+      x: Math.random()*c.width,
+      y: -10 - Math.random()*c.height/2,
+      s: 5 + Math.random()*8,
+      v: 1.5 + Math.random()*3.5,
+      r: Math.random()*Math.PI,
+      w: goldColors[Math.floor(Math.random() * goldColors.length)]
+    }));
+
+    let t=0, maxT=120; // ~2s
+    (function step(){
+      ctx.clearRect(0,0,c.width,c.height);
+      pieces.forEach(p=>{
+        p.y += p.v*2; p.x += Math.sin((t+p.y)*0.05)*1.6; p.r += 0.1;
+        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r);
+        ctx.fillStyle = p.w; 
+        ctx.shadowColor = p.w;
+        ctx.shadowBlur = 10;
+        ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s);
+        ctx.restore();
+      });
+      t++;
+      if(t<maxT) requestAnimationFrame(step); else ctx.clearRect(0,0,c.width,c.height);
+    })();
+  }
 
   // Build progress tiles
   function buildProgress(){
@@ -392,12 +979,51 @@
   }
 
   function celebrate(){
-    confettiBurst();
-    setMessage('Great job! You typed A to Z! 🎉', true);
-    speak('Great job! You typed the whole alphabet!');
+    // Calculate time metrics
+    const totalTimeMs = endTime - startTime;
+    const totalTimeSec = totalTimeMs / 1000;
+    const lpm = (26 / totalTimeSec) * 60;
+
+    // Create record
+    const record = {
+      id: generateId(),
+      completedAt: new Date().toISOString(),
+      totalTimeMs,
+      totalTimeSec,
+      lpm
+    };
+
+    // Save record
+    const updatedRecords = addRecord(record);
+    currentRunId = record.id;
+
+    // Check if it's a new best time
+    const isNewRecord = isNewBestTime(totalTimeMs, updatedRecords);
+
+    if (isNewRecord) {
+      // Extra celebration for new record!
+      celebrateNewRecord(totalTimeMs);
+      setMessage(`🏆 NEW RECORD! ${formatTime(totalTimeMs)} - ${formatLpm(lpm)}`, true);
+    } else {
+      confettiBurst();
+      setMessage(`Great job! ${formatTime(totalTimeMs)} - ${formatLpm(lpm)} 🎉`, true);
+      speak('Great job! You typed the whole alphabet!');
+    }
+
+    // Open records panel
+    setTimeout(() => {
+      toggleRecordsPanel(true);
+    }, isNewRecord ? 1500 : 500);
   }
 
-  function restart(){ index = 0; updateUI(); setMessage('New round! Type the letter you see.'); }
+  function restart(){ 
+    index = 0; 
+    startTime = null; 
+    endTime = null; 
+    currentRunId = null;
+    updateUI(); 
+    setMessage('New round! Type the letter you see.'); 
+  }
 
   // Unified input handler (physical keys & on-screen clicks)
   function handleInput(letter){
@@ -411,9 +1037,22 @@
     flashKey(lower, lower === targetLetter() ? 'hit' : 'wrong');
 
     if(lower === targetLetter()){
+      // Start timer on first correct letter (A)
+      if(index === 0 && startTime === null){
+        startTime = performance.now();
+      }
+      
       index++;
       ripple();
-      if(index >= alphabet.length){ index = alphabet.length; updateUI(); celebrate(); return; }
+      
+      // Set end time when completing Z
+      if(index >= alphabet.length){ 
+        endTime = performance.now();
+        index = alphabet.length; 
+        updateUI(); 
+        celebrate(); 
+        return; 
+      }
       updateUI();
       setMessage('Nice! Now type ' + (useUpper? alphabet[index].toUpperCase(): alphabet[index]) + '.');
     } else {
@@ -533,6 +1172,25 @@
   els.toggleCaseBtn.addEventListener('click', ()=> { useUpper=!useUpper; updateUI(); });
   els.toggleVoiceBtn.addEventListener('click', ()=> { speechOn=!speechOn; els.toggleVoiceBtn.textContent = (speechOn? '🔈 Speech: On' : '🔇 Speech: Off'); });
   els.focusBtn.addEventListener('click', ()=> { els.hiddenInput.focus(); setMessage('Ready! Start typing…'); });
+
+  // Records panel controls
+  els.recordsBtn.addEventListener('click', ()=> toggleRecordsPanel());
+  els.recordsClose.addEventListener('click', ()=> toggleRecordsPanel(false));
+  els.viewLeaderboard.addEventListener('click', ()=> setRecordsView('leaderboard'));
+  els.viewRecent.addEventListener('click', ()=> setRecordsView('recent'));
+  els.exportBtn.addEventListener('click', exportRecords);
+  els.importBtn.addEventListener('click', ()=> els.importInput.click());
+  els.importInput.addEventListener('change', (e)=> {
+    if(e.target.files.length > 0) {
+      importRecords(e.target.files[0]);
+      e.target.value = ''; // Reset for future imports
+    }
+  });
+  els.clearBtn.addEventListener('click', ()=> {
+    if(confirm('Are you sure you want to delete all records? This cannot be undone.')) {
+      clearRecords();
+    }
+  });
 
   // Build on-screen keyboard
   function buildKeyboard(){
