@@ -890,8 +890,8 @@
     `;
     document.body.appendChild(overlay);
 
-    // Speak new record
-    speak('New record!');
+    // Speak new record (delay to let "Z" finish speaking first)
+    setTimeout(() => speak('New record!'), 600);
 
     // Golden confetti
     goldenConfettiBurst();
