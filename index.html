@@ -1030,8 +1030,8 @@
     if(!letter) return;
     const lower = letter.toLowerCase();
 
-    // Speak any letter the user types (always)
-    speak((useUpper? lower.toUpperCase(): lower));
+    // Speak any letter the user types (always use lowercase to avoid "Capital A" announcements)
+    speak(lower);
 
     // Flash the pressed key on the on-screen keyboard
     flashKey(lower, lower === targetLetter() ? 'hit' : 'wrong');
@@ -1167,7 +1167,7 @@
   }
 
   // Controls
-  els.speakBtn.addEventListener('click', ()=> speak(useUpper? targetLetter().toUpperCase(): targetLetter()));
+  els.speakBtn.addEventListener('click', ()=> speak(targetLetter()));
   els.restartBtn.addEventListener('click', ()=> restart());
   els.toggleCaseBtn.addEventListener('click', ()=> { useUpper=!useUpper; updateUI(); });
   els.toggleVoiceBtn.addEventListener('click', ()=> { speechOn=!speechOn; els.toggleVoiceBtn.textContent = (speechOn? '🔈 Speech: On' : '🔇 Speech: Off'); });
