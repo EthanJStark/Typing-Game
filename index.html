@@ -170,6 +170,54 @@
 
   .sr{ position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
 
+  /* Voice settings dropdown */
+  .voice-settings {
+    position: relative;
+    display: inline-block;
+  }
+  .voice-dropdown {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    min-width: 280px;
+    max-width: 320px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: none;
+  }
+  .voice-dropdown.open { display: block; }
+  .voice-dropdown label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .voice-dropdown select {
+    width: 100%;
+    padding: 8px 10px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: white;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .voice-dropdown select:hover { border-color: rgba(255,255,255,0.35); }
+  .voice-dropdown select:focus { border-color: var(--accent); }
+
   /* Fun effects */
   .shake{ animation: shake .35s ease; }
   @keyframes shake{ 0%{ transform:translateX(0);} 25%{transform:translateX(-10px);} 50%{transform:translateX(10px);} 75%{transform:translateX(-6px);} 100%{transform:translateX(0);} }
@@ -590,6 +638,15 @@
       <div class="footer">
         <button class="btn" id="toggleCaseBtn" title="Switch between lowercase and uppercase target">aA Case</button>
         <button class="btn" id="toggleVoiceBtn" title="Toggle speech on/off">🔈 Speech: On</button>
+        <div class="voice-settings">
+          <button class="btn" id="voiceSettingsBtn" title="Voice settings">🎤 Voice</button>
+          <div class="voice-dropdown" id="voiceDropdown">
+            <label for="voiceSelect">Select Voice:</label>
+            <select id="voiceSelect">
+              <option value="">Loading voices...</option>
+            </select>
+          </div>
+        </div>
         <button class="btn" id="focusBtn" title="If your typing doesn't work, click here">⌨️ Click to Type</button>
         <button class="btn" id="recordsBtn" title="View your records">🏆 Records</button>
       </div>
@@ -626,6 +683,7 @@
   let index = 0;              // next target index
   let useUpper = true;        // display case only
   let speechOn = true;        // toggle speech
+  let selectedVoiceName = null; // user-selected voice name (not the object)
 
   // Timer tracking
   let startTime = null;       // Set when user types first correct letter (A)
@@ -649,6 +707,9 @@
     restartBtn: document.getElementById('restartBtn'),
     toggleCaseBtn: document.getElementById('toggleCaseBtn'),
     toggleVoiceBtn: document.getElementById('toggleVoiceBtn'),
+    voiceSettingsBtn: document.getElementById('voiceSettingsBtn'),
+    voiceDropdown: document.getElementById('voiceDropdown'),
+    voiceSelect: document.getElementById('voiceSelect'),
     focusBtn: document.getElementById('focusBtn'),
     hiddenInput: document.getElementById('hiddenInput'),
     srStatus: document.getElementById('srStatus'),
@@ -949,16 +1010,131 @@
     if(!speechOn) return;
     if(!('speechSynthesis' in window)) return; // unsupported
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
+    
+    // Replace "z" with "zee" for single letter pronunciation (avoid "zed")
+    let spokenText = text;
+    if (text.toLowerCase() === 'z') {
+      spokenText = 'zee';
+    }
+    
+    const u = new SpeechSynthesisUtterance(spokenText);
     u.rate = 0.9; u.pitch = 1.05; u.volume = 1.0;
-    // Prefer a child‑friendly English voice if present
+    
+    // Get voices fresh each time (important for cross-browser compatibility)
     const voices = speechSynthesis.getVoices();
-    const pref = voices.find(v=> /en/i.test(v.lang) && /child|kids|female/i.test(v.name)) || voices.find(v=> /en/i.test(v.lang));
-    if(pref) u.voice = pref;
+    
+    // Use selected voice if set, or find a good default
+    if (selectedVoiceName) {
+      const voice = voices.find(v => v.name === selectedVoiceName);
+      if (voice) {
+        u.voice = voice;
+      }
+    } else {
+      // Prefer US English voices (they say "zee"), then any English voice
+      const usEnglish = voices.find(v=> /en-US/i.test(v.lang));
+      const anyEnglish = voices.find(v=> /en/i.test(v.lang));
+      const pref = usEnglish || anyEnglish;
+      if(pref) u.voice = pref;
+    }
+    
     speechSynthesis.speak(u);
   }
+  
+  // Load available voices
+  function loadVoices(){
+    const voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      populateVoiceList();
+    }
+  }
+  
+  // Populate voice selection dropdown
+  function populateVoiceList(){
+    const voices = speechSynthesis.getVoices();
+    const englishVoices = voices.filter(v => /en/i.test(v.lang));
+    
+    // Sort: US English first, then other English
+    englishVoices.sort((a, b) => {
+      const aIsUS = /en-US/i.test(a.lang);
+      const bIsUS = /en-US/i.test(b.lang);
+      if (aIsUS && !bIsUS) return -1;
+      if (!aIsUS && bIsUS) return 1;
+      return a.name.localeCompare(b.name);
+    });
+    
+    els.voiceSelect.innerHTML = '';
+    
+    if (englishVoices.length === 0) {
+      els.voiceSelect.innerHTML = '<option value="">No English voices available</option>';
+      return;
+    }
+    
+    // Add a default option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'Auto (US English preferred)';
+    els.voiceSelect.appendChild(defaultOption);
+    
+    // Add voices grouped by locale
+    let currentLocale = '';
+    englishVoices.forEach(voice => {
+      const locale = voice.lang.split('-')[0].toUpperCase();
+      const country = voice.lang.includes('-') ? voice.lang.split('-')[1].toUpperCase() : '';
+      const localeLabel = country ? `${locale}-${country}` : locale;
+      
+      if (localeLabel !== currentLocale) {
+        if (currentLocale !== '') {
+          // Add separator
+          const separator = document.createElement('option');
+          separator.disabled = true;
+          separator.textContent = '─────────────';
+          els.voiceSelect.appendChild(separator);
+        }
+        currentLocale = localeLabel;
+      }
+      
+      const option = document.createElement('option');
+      option.value = voice.name;
+      option.textContent = `${voice.name} (${localeLabel})`;
+      els.voiceSelect.appendChild(option);
+    });
+    
+    // Restore saved voice preference
+    const savedVoice = localStorage.getItem('abc_typing_voice');
+    if (savedVoice) {
+      // Verify the voice still exists
+      const voice = voices.find(v => v.name === savedVoice);
+      if (voice) {
+        selectedVoiceName = savedVoice;
+        els.voiceSelect.value = savedVoice;
+      }
+    }
+  }
+  
+  // Voice selection change handler
+  function onVoiceChange(){
+    const voiceName = els.voiceSelect.value;
+    if (!voiceName) {
+      selectedVoiceName = null;
+      localStorage.removeItem('abc_typing_voice');
+    } else {
+      // Verify the voice exists
+      const voices = speechSynthesis.getVoices();
+      const voice = voices.find(v => v.name === voiceName);
+      if (voice) {
+        selectedVoiceName = voiceName;
+        localStorage.setItem('abc_typing_voice', voiceName);
+      }
+    }
+    // Test the voice
+    speak('zee');
+  }
+  
   // Some browsers load voices async
-  if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged = ()=>{}; }
+  if('speechSynthesis' in window){ 
+    speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices(); // Also try loading immediately
+  }
 
   function targetLetter(){ return alphabet[index]; }
 
@@ -1171,7 +1347,19 @@
   els.restartBtn.addEventListener('click', ()=> restart());
   els.toggleCaseBtn.addEventListener('click', ()=> { useUpper=!useUpper; updateUI(); });
   els.toggleVoiceBtn.addEventListener('click', ()=> { speechOn=!speechOn; els.toggleVoiceBtn.textContent = (speechOn? '🔈 Speech: On' : '🔇 Speech: Off'); });
+  els.voiceSettingsBtn.addEventListener('click', (e)=> { 
+    e.stopPropagation();
+    els.voiceDropdown.classList.toggle('open'); 
+  });
+  els.voiceSelect.addEventListener('change', onVoiceChange);
   els.focusBtn.addEventListener('click', ()=> { els.hiddenInput.focus(); setMessage('Ready! Start typing…'); });
+  
+  // Close voice dropdown when clicking outside
+  document.addEventListener('click', (e)=> {
+    if (!els.voiceDropdown.contains(e.target) && e.target !== els.voiceSettingsBtn) {
+      els.voiceDropdown.classList.remove('open');
+    }
+  });
 
   // Records panel controls
   els.recordsBtn.addEventListener('click', ()=> toggleRecordsPanel());
